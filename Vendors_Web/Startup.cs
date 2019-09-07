@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Vendors_BLL.Implementation;
 using Vendors_BLL.Interfaces;
 using Vendors_DAL;
+using Vendors_DAL.Models;
 
 namespace Vendors_Web
 {
@@ -38,7 +39,15 @@ namespace Vendors_Web
             services.AddDbContext<VendorsDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddTransient<IVendorService, VendorService>();
+            //services.AddTransient<IVendorService, VendorService>();
+            services.AddScoped<IEntityService<Vendor>, EntityService<Vendor>>()
+                    .AddScoped<IEntityService<VendorType>, EntityService<VendorType>>()
+                    .AddScoped<IEntityService<Country>, EntityService<Country>>()
+                    .AddScoped<IEntityService<City>, EntityService<City>>()
+                    .AddScoped<IEntityService<ContactPerson>, EntityService<ContactPerson>>()
+                    .AddScoped<IEntityService<Contact>, EntityService<Contact>>()
+                    .AddScoped<IEntityService<Address>, EntityService<Address>>()
+                    .AddScoped<ICityService,CityService>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

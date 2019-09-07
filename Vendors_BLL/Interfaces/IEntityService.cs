@@ -8,10 +8,11 @@ namespace Vendors_BLL.Interfaces
 {
     public interface IEntityService<T> where T: BaseModel
     {
-        Task<List<T>> GetAll();
-        Task<T> GetById(int id);
-        Task Create(T entity);
-        Task Update(T entity);
-        Task Delete(int id);
+        Task<List<T>> GetAllAsync();
+        Task<T> GetByIdAsync(int id);
+        Task CreateAsync(T entity);
+        void Update(T entity);
+        Task DeleteAsync(int id);
+        Task SaveAsync();
     }
 }

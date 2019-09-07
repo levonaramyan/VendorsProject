@@ -26,15 +26,15 @@ namespace Vendors_Web.ViewModels
 
         [Required]
         [Display(Name = "Country")]
-        public string Country { get; set; }
+        public int CountryId { get; set; }
 
         [Required]
         [Display(Name = "City")]
-        public string City { get; set; }
+        public int CityId { get; set; }
 
         [Required]
         [Display(Name = "Vendor Type")]
-        public string VendorType { get; set; }
+        public int VendorTypeId { get; set; }
 
         [Required]
         [EmailAddress]

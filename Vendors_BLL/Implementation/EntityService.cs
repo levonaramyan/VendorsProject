@@ -18,48 +18,35 @@ namespace Vendors_BLL.Implementation
             table = _context.Set<T>();
         }
 
-        public async Task Create(T entity)
+        public async Task CreateAsync(T entity)
         {
             await table.AddAsync(entity);
-
-            await _context.SaveChangesAsync();
         }
 
-        public async Task Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            T entityToDelete = await table.Where(ent => ent.Id == id).FirstOrDefaultAsync();
-
-            if (entityToDelete != null)
-            {
-                table.Remove(entityToDelete);
-            }
-
-            await _context.SaveChangesAsync();
+            T existing = await table.FindAsync(id);
+            table.Remove(existing);
         }
 
-        public async Task<List<T>> GetAll()
+        public async Task<List<T>> GetAllAsync()
         {
-            List<T> entities = await table.ToListAsync();
-
-            return entities;
+            return await table.ToListAsync();
         }
 
-        public async Task<T> GetById(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
-            T entity = await table.Where(ent => ent.Id == id).FirstOrDefaultAsync();
-
-            return entity;
+            return await table.FindAsync(id);
         }
 
-        public async Task Update(T entity)
+        public void Update(T entity)
         {
-            T entityToUpdate = await table.Where(ent => ent.Id == entity.Id).FirstOrDefaultAsync();
+            table.Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+        }
 
-            if (entityToUpdate != null)
-            {
-                table.Update(entity);
-            }
-
+        public async Task SaveAsync()
+        {
             await _context.SaveChangesAsync();
         }
     }
