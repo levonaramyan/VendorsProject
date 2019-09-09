@@ -14,6 +14,7 @@ namespace Vendors_BLL.Implementation
     {
         public CityService(VendorsDBContext context) : base(context)
         {
+
         }
 
         public async Task<List<City>> GetCitiesByCountryId(int id)

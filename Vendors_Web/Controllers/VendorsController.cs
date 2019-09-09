@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Vendors_BLL.Interfaces;
 using Vendors_DAL;
 using Vendors_DAL.Models;
@@ -20,12 +21,13 @@ namespace Vendors_Web.Controllers
         private IEntityService<Country> _countryService;
         private IEntityService<Contact> _contactService;
         private IEntityService<ContactPerson> _contactPersonService;
+        private VendorsDBContext _context;
 
 
         public VendorsController(IEntityService<Vendor> vendorService, IEntityService<Address> addressService,
                                  IEntityService<Contact> contactService, IEntityService<ContactPerson> contactPersonService,
                                  IEntityService<VendorType> vendorTypeService, IEntityService<Country> countryService,
-                                 ICityService cityService) 
+                                 ICityService cityService, VendorsDBContext context)
         {
             _vendorService = vendorService;
             _addressService = addressService;
@@ -34,6 +36,7 @@ namespace Vendors_Web.Controllers
             _vendorTypeService = vendorTypeService;
             _countryService = countryService;
             _cityService = cityService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -41,6 +44,21 @@ namespace Vendors_Web.Controllers
             List<Vendor> vendors = await _vendorService.GetAllAsync();
 
             return View(vendors);
+        }
+
+        public List<TableViewModel> AjaxHandler()
+        {
+            //List<Vendor> vendors = await _vendorService.GetAllAsync();
+            List<Vendor> vendors;
+            try
+            {
+                vendors = _context.Vendors.Include(x => x.Address).ThenInclude(x => x.City).Include(x => x.VendorType).ToList();
+                return vendors.Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).ToList();
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         [HttpGet]
@@ -61,7 +79,7 @@ namespace Vendors_Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateVendorViewModel model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 // Add Vendor To DB
                 Vendor vendor = new Vendor
@@ -112,7 +130,7 @@ namespace Vendors_Web.Controllers
 
             await LoadData();
 
-            return PartialView("_Create",model);
+            return PartialView("_Create", model);
         }
 
         public async Task<List<City>> GetCities(int id)

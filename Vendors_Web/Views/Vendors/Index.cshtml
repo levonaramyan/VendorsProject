@@ -3,11 +3,34 @@
     ViewData["Title"] = "Index";
 }
 
-<div class="container-fluid">
-    <div class="row">
+
+<div class="row">
+    <div class="col-lg-2">
         <a asp-action="Create" asp-controller="Vendors" id="Cr-Vend-But" class="btn btn-primary">NEW VENDOR</a>
     </div>
 </div>
+<div class="row bg-white">
+    <div class="col-lg-1">
+        <span>Show</span>
+    </div>
+    <div class="col-lg-1">
+        <select class="form-control">
+            <option value="" selected>Select</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+    </div>
+    <div class="col-lg-1">
+        <span>entries</span>
+    </div>
+    <div class="col-lg-2">
+        <input type="text" class="form-control" placeholder="Search..."/>
+    </div>
+</div>
+
+@*@Html.Partial("_List")*@
+<partial name="_List.cshtml" />
 
 <div id="dialogDiv" class="modal fade" aria-hidden="true">
     <div id="dialogContent" class="modal-dialog modal-lg">
@@ -15,11 +38,14 @@
 </div>
 
 @section Scripts{
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <script src="~/js/table.js"></script>
     <script src="~/js/modal.js"></script>
     <script type="text/javascript">
         var urlObj = new Object();
         urlObj.GetCitiesUrl = "@Url.Action("GetCities","Vendors")";
         urlObj.CreateUrl = "@Url.Action("Create","Vendors")";
+        urlObj.TableAjax = "@Url.Action("AjaxHandler","Vendors")";
         console.log(urlObj.GetCitiesUrl);
     </script>
     <script src="~/js/modal_operations.js"></script>
