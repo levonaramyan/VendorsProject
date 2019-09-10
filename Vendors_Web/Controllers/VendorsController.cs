@@ -22,6 +22,7 @@ namespace Vendors_Web.Controllers
         private IEntityService<Contact> _contactService;
         private IEntityService<ContactPerson> _contactPersonService;
         private VendorsDBContext _context;
+        private const int tableItemsDefaultCount = 10;
 
 
         public VendorsController(IEntityService<Vendor> vendorService, IEntityService<Address> addressService,
@@ -41,9 +42,17 @@ namespace Vendors_Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<Vendor> vendors = await _vendorService.GetAllAsync();
+            ViewBag.Vendors = await _context.Vendors
+                .Include(v => v.Address)
+                .ThenInclude(a => a.City)
+                .Include(v => v.VendorType)
+                .Take(tableItemsDefaultCount)
+                .Select(v => new VendorTableViewModel { Name = v.Name, City = v.Address.City.Name, Type = v.VendorType.Name}).ToListAsync();
 
-            return View(vendors);
+            ViewBag.Cities = await _cityService.GetAllAsync();
+            ViewBag.VendorTypes = await _vendorTypeService.GetAllAsync();
+
+            return View();
         }
 
         public List<TableViewModel> AjaxHandler()

@@ -7,6 +7,20 @@ a.navbar-brand {
   word-break: break-all;
 }
 
+.modal-lg {
+    max-width: 95%;
+}
+
+/*.modal-dialog {
+    width: 150%;
+    height: 150% !important;
+}
+
+.modal-content {
+    height: 100%;
+    width: 150%;
+    align-content:center;
+}*/
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
