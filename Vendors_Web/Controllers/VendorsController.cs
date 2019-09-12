@@ -70,6 +70,25 @@ namespace Vendors_Web.Controllers
             }
         }
 
+        [HttpPost]
+        public List<TableViewModel> GetFilteredTable(FilterVendorsViewModel model)
+        {
+            int skipElems = (model.Page - 1) * model.ItemsCount;
+            skipElems = skipElems < 0 ? 0 : skipElems;
+
+            List<TableViewModel> vendors =  _context.Vendors.
+                Include(x => x.Address).
+                ThenInclude(x => x.City).
+                Include(x => x.VendorType).
+                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.CityId == 0 || x.Address.CityId == model.CityId)).
+                Skip(skipElems).
+                Take(model.ItemsCount).
+                Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).
+                ToList();
+
+            return vendors;
+        }
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {

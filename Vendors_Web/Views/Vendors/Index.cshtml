@@ -12,7 +12,7 @@
             <a asp-action="Create" asp-controller="Vendors" id="Cr-Vend-But" class="btn btn-primary">NEW VENDOR</a>
         </div>
     </div>
-    <form asp-action="GetFiltrered" asp-controller="Vendors" method="post">
+    <form id="search-form" asp-action="GetFiltrered" asp-controller="Vendors" method="post">
         <div class="row col-lg-12 mt-3">
             <div class="row col-lg-4">
                 Show
@@ -66,7 +66,7 @@
             </div>
         </div>
         <div class="row mt-3">
-            <a asp-action="GetFilteredTable" asp-controller="Vendors" class="btn btn-outline-primary mx-auto">Search</a>
+            <a id="search-button" asp-action="GetFilteredTable" asp-controller="Vendors" class="btn btn-outline-primary mx-auto">Search</a>
         </div>
     </form>
 
@@ -81,14 +81,15 @@
 </div>
 
 @section Scripts{
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
-    @*<script src="~/js/table.js"></script>*@
+    @*<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>*@
+    <script src="~/js/table.js"></script>
     <script src="~/js/modal.js"></script>
     <script type="text/javascript">
         var urlObj = new Object();
         urlObj.GetCitiesUrl = "@Url.Action("GetCities","Vendors")";
         urlObj.CreateUrl = "@Url.Action("Create","Vendors")";
         urlObj.TableAjax = "@Url.Action("AjaxHandler","Vendors")";
+        urlObj.GetFilteredTableUrl = "@Url.Action("GetFilteredTable","Vendors")";
         console.log(urlObj.GetCitiesUrl);
     </script>
     <script src="~/js/modal_operations.js"></script>
