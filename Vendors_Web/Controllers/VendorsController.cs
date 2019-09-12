@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using Vendors_BLL.Interfaces;
 using Vendors_DAL;
 using Vendors_DAL.Models;
@@ -71,7 +72,7 @@ namespace Vendors_Web.Controllers
         }
 
         [HttpPost]
-        public List<TableViewModel> GetFilteredTable(FilterVendorsViewModel model)
+        public JsonResult GetFilteredTable(FilterVendorsViewModel model)
         {
             int skipElems = (model.Page - 1) * model.ItemsCount;
             skipElems = skipElems < 0 ? 0 : skipElems;
@@ -80,13 +81,22 @@ namespace Vendors_Web.Controllers
                 Include(x => x.Address).
                 ThenInclude(x => x.City).
                 Include(x => x.VendorType).
-                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.CityId == 0 || x.Address.CityId == model.CityId)).
+                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.City == 0 || x.Address.CityId == model.City)).
                 Skip(skipElems).
                 Take(model.ItemsCount).
                 Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).
                 ToList();
 
-            return vendors;
+            int itemsNum = _context.Vendors.
+                Include(x => x.Address).
+                ThenInclude(x => x.City).
+                Include(x => x.VendorType).
+                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.City == 0 || x.Address.CityId == model.City)).
+                Count();
+
+            int pages = itemsNum == 0 ? 1 : (1 + (itemsNum - 1) / model.ItemsCount);
+
+            return Json(new { vendors, pages});
         }
 
         [HttpGet]
