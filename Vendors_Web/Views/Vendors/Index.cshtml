@@ -2,8 +2,8 @@
 
 
 @{
-        ViewData["Title"] = "Index";
-    }
+    ViewData["Title"] = "Index";
+}
 
 
 <div class="card col-lg-12">
@@ -12,7 +12,7 @@
             <a asp-action="Create" asp-controller="Vendors" id="Cr-Vend-But" class="btn btn-primary">NEW VENDOR</a>
         </div>
     </div>
-    <form id="search-form" asp-action="GetFiltrered" asp-controller="Vendors" method="post">
+    <form id="search-form" asp-action="GetFiltrered" asp-controller="Vendors" method="post" autocomplete="off">
         <input asp-for="Page" value="1" type="hidden">
         <div class="row col-lg-12 mt-3">
             <div class="row col-lg-4">
@@ -35,7 +35,7 @@
         </div>
         <hr />
         <div class="row mt-3">
-            <div class="col-lg">
+            <div class="col-lg autocomplete">
                 <label asp-for="Name"></label>
                 <input asp-for="Name" class="form-control" />
             </div>
@@ -50,8 +50,8 @@
                 </select>
             </div>
             <div class="col-lg">
-                <label asp-for="City"></label>
-                <select asp-for="City" class="form-control">
+                <label asp-for="CityId"></label>
+                <select asp-for="CityId" class="form-control">
                     <option value="0" selected>Select</option>
                     @foreach (var city in ViewBag.Cities)
                     {
@@ -94,6 +94,7 @@
 
 @section Scripts{
     @*<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>*@
+    <script src="~/js/autocomplete.js"></script>
     <script src="~/js/table.js"></script>
     <script src="~/js/modal.js"></script>
     <script type="text/javascript">
@@ -102,6 +103,8 @@
         urlObj.CreateUrl = "@Url.Action("Create","Vendors")";
         urlObj.TableAjax = "@Url.Action("AjaxHandler","Vendors")";
         urlObj.GetFilteredTableUrl = "@Url.Action("GetFilteredTable","Vendors")";
+        urlObj.GetNameSuggestUrl = "@Url.Action("SuggestNames","Vendors")";
+
         console.log(urlObj.GetCitiesUrl);
     </script>
     <script src="~/js/modal_operations.js"></script>

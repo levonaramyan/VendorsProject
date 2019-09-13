@@ -10,7 +10,7 @@ namespace Vendors_Web.ViewModels
         public int ItemsCount { get; set; }
         public string Name { get; set; }
         public int TypeId { get; set; }
-        public int City { get; set; }
+        public int CityId { get; set; }
         public int Page { get; set; }
     }
 }

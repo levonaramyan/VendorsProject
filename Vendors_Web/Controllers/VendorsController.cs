@@ -81,7 +81,7 @@ namespace Vendors_Web.Controllers
                 Include(x => x.Address).
                 ThenInclude(x => x.City).
                 Include(x => x.VendorType).
-                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.City == 0 || x.Address.CityId == model.City)).
+                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.CityId == 0 || x.Address.CityId == model.CityId)).
                 Skip(skipElems).
                 Take(model.ItemsCount).
                 Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).
@@ -91,12 +91,18 @@ namespace Vendors_Web.Controllers
                 Include(x => x.Address).
                 ThenInclude(x => x.City).
                 Include(x => x.VendorType).
-                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.City == 0 || x.Address.CityId == model.City)).
+                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.CityId == 0 || x.Address.CityId == model.CityId)).
                 Count();
 
             int pages = itemsNum == 0 ? 1 : (1 + (itemsNum - 1) / model.ItemsCount);
 
             return Json(new { vendors, pages});
+        }
+
+        [HttpGet]
+        public async Task<List<string>> SuggestNames(string input)
+        {
+            return await _context.Vendors.Where(v => v.Name.Contains((string)input)).Take(50).Select(v => v.Name).ToListAsync();
         }
 
         [HttpGet]
