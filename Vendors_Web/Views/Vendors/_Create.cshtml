@@ -19,8 +19,8 @@
                     <span asp-validation-for="ContactPerson" class="text-danger"></span>
                 </div>
                 <div class="col-lg">
-                    <label asp-for="VendorTypeId"></label>
-                    <select asp-for="VendorTypeId" class="form-control">
+                    <label asp-for="VendorType"></label>
+                    <select asp-for="VendorType" class="form-control">
                         <option disabled selected value="">Select</option>
                         @foreach (var item in ViewBag.VendorTypes)
                         {
@@ -51,8 +51,8 @@
                     </select>
                 </div>
                 <div class="col-lg">
-                    <label asp-for="CityId"></label>
-                    <select asp-for="CityId" class="form-control">
+                    <label asp-for="City"></label>
+                    <select asp-for="City" class="form-control">
                         <option disabled selected value="">Select</option>
                     </select>
                 </div>

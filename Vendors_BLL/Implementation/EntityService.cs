@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Vendors_BLL.Interfaces;
@@ -48,6 +49,26 @@ namespace Vendors_BLL.Implementation
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<T>> GetWhereAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await table.Where(predicate).ToListAsync();
+        }
+
+        public async Task<List<T>> GetSubsetWhereAsync(Expression<Func<T, bool>> predicate, int skip, int take)
+        {
+            return await table.Where(predicate).Skip(skip).Take(take).ToListAsync();
+        }
+
+        public int Count()
+        {
+            return table.Count();
+        }
+
+        public int CountWhere(Expression<Func<T, bool>> predicate)
+        {
+            return table.Where(predicate).Count();
         }
     }
 }

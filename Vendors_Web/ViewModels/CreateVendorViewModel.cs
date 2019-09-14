@@ -30,11 +30,11 @@ namespace Vendors_Web.ViewModels
 
         [Required]
         [Display(Name = "City")]
-        public int CityId { get; set; }
+        public int City { get; set; }
 
         [Required]
         [Display(Name = "Vendor Type")]
-        public int VendorTypeId { get; set; }
+        public int VendorType { get; set; }
 
         [Required]
         [EmailAddress]

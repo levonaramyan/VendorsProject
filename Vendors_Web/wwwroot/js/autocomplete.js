@@ -35,7 +35,7 @@ function autocomplete(inp) {
                 /*create a DIV element that will contain the items (values):*/
                 a = document.createElement("DIV");
                 a.setAttribute("id", myThis.id + "autocomplete-list");
-                a.setAttribute("class", "autocomplete-items");
+                a.setAttribute("class", "autocomplete-items col-lg-12");
                 /*append the DIV element as a child of the autocomplete container:*/
                 myThis.parentNode.appendChild(a);
                 /*for each item in the array...*/

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,18 +19,17 @@ namespace Vendors_Web.Controllers
         private IEntityService<Vendor> _vendorService;
         private IEntityService<VendorType> _vendorTypeService;
         private IEntityService<Address> _addressService;
-        private ICityService _cityService;
         private IEntityService<Country> _countryService;
+        private IEntityService<City> _cityService;
         private IEntityService<Contact> _contactService;
         private IEntityService<ContactPerson> _contactPersonService;
-        private VendorsDBContext _context;
         private const int tableItemsDefaultCount = 10;
 
 
         public VendorsController(IEntityService<Vendor> vendorService, IEntityService<Address> addressService,
                                  IEntityService<Contact> contactService, IEntityService<ContactPerson> contactPersonService,
                                  IEntityService<VendorType> vendorTypeService, IEntityService<Country> countryService,
-                                 ICityService cityService, VendorsDBContext context)
+                                 IEntityService<City> cityService)
         {
             _vendorService = vendorService;
             _addressService = addressService;
@@ -38,71 +38,70 @@ namespace Vendors_Web.Controllers
             _vendorTypeService = vendorTypeService;
             _countryService = countryService;
             _cityService = cityService;
-            _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.Vendors = await _context.Vendors
-                .Include(v => v.Address)
-                .ThenInclude(a => a.City)
-                .Include(v => v.VendorType)
-                .Take(tableItemsDefaultCount)
-                .Select(v => new VendorTableViewModel { Name = v.Name, City = v.Address.City.Name, Type = v.VendorType.Name}).ToListAsync();
-
             ViewBag.Cities = await _cityService.GetAllAsync();
             ViewBag.VendorTypes = await _vendorTypeService.GetAllAsync();
 
             return View();
         }
 
-        public List<TableViewModel> AjaxHandler()
+        // This is neccessary, when using DataTable
+        public async Task<List<TableViewModel>> AjaxHandler()
         {
-            //List<Vendor> vendors = await _vendorService.GetAllAsync();
-            List<Vendor> vendors;
-            try
-            {
-                vendors = _context.Vendors.Include(x => x.Address).ThenInclude(x => x.City).Include(x => x.VendorType).ToList();
-                return vendors.Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).ToList();
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+            List<TableViewModel> vendors = (await _vendorService.GetAllAsync()).Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).ToList();
+
+            return vendors;
         }
 
         [HttpPost]
-        public JsonResult GetFilteredTable(FilterVendorsViewModel model)
+        public async Task<JsonResult> GetFilteredTable(FilterVendorsViewModel model)
         {
             int skipElems = (model.Page - 1) * model.ItemsCount;
             skipElems = skipElems < 0 ? 0 : skipElems;
 
-            List<TableViewModel> vendors =  _context.Vendors.
-                Include(x => x.Address).
-                ThenInclude(x => x.City).
-                Include(x => x.VendorType).
-                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.CityId == 0 || x.Address.CityId == model.CityId)).
-                Skip(skipElems).
-                Take(model.ItemsCount).
-                Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).
-                ToList();
+            Expression<Func<Vendor, bool>> filterExpression = (x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.CityId == 0 || x.Address.CityId == model.CityId));
+            ///////////////////////////////// Lazy Loading ////////////////////////////////////
+            List<TableViewModel> vendors = (await _vendorService
+                .GetSubsetWhereAsync(filterExpression, skipElems, model.ItemsCount))
+                .Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name })
+                .ToList();
 
-            int itemsNum = _context.Vendors.
-                Include(x => x.Address).
-                ThenInclude(x => x.City).
-                Include(x => x.VendorType).
-                Where(x => (string.IsNullOrEmpty(model.Name) || x.Name.Contains(model.Name)) && (model.TypeId == 0 || x.VendorTypeId == model.TypeId) && (model.CityId == 0 || x.Address.CityId == model.CityId)).
-                Count();
+            int itemsNum = _vendorService.CountWhere(filterExpression);
+            ////////////////////////////////////////////////////////////////////////////////////
 
+
+            ///////////////////////////////// Eager Loading ////////////////////////////////////
+            //List<TableViewModel> vendors = _context.Vendors.
+            //    Include(x => x.Address).
+            //    ThenInclude(x => x.City).
+            //    Include(x => x.VendorType).
+            //    Where(filterExpression).
+            //    Skip(skipElems).
+            //    Take(model.ItemsCount).
+            //    Select(x => new TableViewModel { Name = x.Name, Type = x.VendorType.Name, City = x.Address.City.Name }).
+            //    ToList();
+
+            //int itemsNum = _context.Vendors.
+            //    Include(x => x.Address).
+            //    ThenInclude(x => x.City).
+            //    Include(x => x.VendorType).
+            //    Where(filterExpression).
+            //    Count();
+            ////////////////////////////////////////////////////////////////////////////////////
+            
             int pages = itemsNum == 0 ? 1 : (1 + (itemsNum - 1) / model.ItemsCount);
 
-            return Json(new { vendors, pages});
+            return Json(new { vendors, pages });
         }
 
         [HttpGet]
         public async Task<List<string>> SuggestNames(string input)
         {
-            return await _context.Vendors.Where(v => v.Name.Contains((string)input)).Take(50).Select(v => v.Name).ToListAsync();
+            int takeNum = 50;
+            return (await _vendorService.GetSubsetWhereAsync(v => v.Name.Contains((string)input),0, takeNum)).Select(v => v.Name).ToList();
         }
 
         [HttpGet]
@@ -129,7 +128,7 @@ namespace Vendors_Web.Controllers
                 Vendor vendor = new Vendor
                 {
                     Name = model.VendorName,
-                    VendorTypeId = model.VendorTypeId,
+                    VendorTypeId = model.VendorType,
                 };
 
                 await _vendorService.CreateAsync(vendor);
@@ -139,7 +138,7 @@ namespace Vendors_Web.Controllers
                 {
                     Street = model.Street,
                     Vendor = vendor,
-                    CityId = model.CityId
+                    CityId = model.City
                 };
 
                 await _addressService.CreateAsync(address);
@@ -177,13 +176,11 @@ namespace Vendors_Web.Controllers
             return PartialView("_Create", model);
         }
 
-        public async Task<List<City>> GetCities(int id)
+        public async Task<JsonResult> GetCities(int id)
         {
-            //Country country = await _countryService.GetByIdAsync(id);
+            var cities = (await _countryService.GetByIdAsync(id)).Cities.Select(x => new { x.Id, x.Name}).ToList();
 
-            //return country.Cities.ToList();
-
-            return await _cityService.GetCitiesByCountryId(id);
+            return Json(cities);
         }
     }
 }

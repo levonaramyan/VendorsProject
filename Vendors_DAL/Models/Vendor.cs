@@ -8,9 +8,9 @@ namespace Vendors_DAL.Models
     {
         public string Name { get; set; }
         public int VendorTypeId { get; set; }
-        public VendorType VendorType { get; set; }
-        public ContactPerson ContactPerson { get; set; }
-        public Contact Contacts { get; set; }
-        public Address Address { get; set; }
+        public virtual VendorType VendorType { get; set; }
+        public virtual ContactPerson ContactPerson { get; set; }
+        public virtual Contact Contacts { get; set; }
+        public virtual Address Address { get; set; }
     }
 }

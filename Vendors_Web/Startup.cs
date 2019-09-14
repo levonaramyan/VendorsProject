@@ -37,7 +37,8 @@ namespace Vendors_Web
             //});
 
             services.AddDbContext<VendorsDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseLazyLoadingProxies()
+                .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             //services.AddTransient<IVendorService, VendorService>();
             services.AddScoped<IEntityService<Vendor>, EntityService<Vendor>>()
