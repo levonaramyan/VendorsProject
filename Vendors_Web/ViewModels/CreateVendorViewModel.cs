@@ -8,19 +8,19 @@ namespace Vendors_Web.ViewModels
 {
     public class CreateVendorViewModel
     {
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [Display(Name = "Vendor Name")]
         public string VendorName { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [Display(Name = "Contact Name")]
         public string ContactPerson { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [Display(Name = "Contact Title")]
         public string ContactTitle { get; set; }
 
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         [Display(Name = "Address")]
         public string Street { get; set; }
 
