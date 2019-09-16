@@ -29,26 +29,17 @@ namespace Vendors_Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.Configure<CookiePolicyOptions>(options =>
-            //{
-            //    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-            //    options.CheckConsentNeeded = context => true;
-            //    options.MinimumSameSitePolicy = SameSiteMode.None;
-            //});
-
             services.AddDbContext<VendorsDBContext>(options =>
                 options.UseLazyLoadingProxies()
                 .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            //services.AddTransient<IVendorService, VendorService>();
             services.AddScoped<IEntityService<Vendor>, EntityService<Vendor>>()
                     .AddScoped<IEntityService<VendorType>, EntityService<VendorType>>()
                     .AddScoped<IEntityService<Country>, EntityService<Country>>()
                     .AddScoped<IEntityService<City>, EntityService<City>>()
                     .AddScoped<IEntityService<ContactPerson>, EntityService<ContactPerson>>()
                     .AddScoped<IEntityService<Contact>, EntityService<Contact>>()
-                    .AddScoped<IEntityService<Address>, EntityService<Address>>()
-                    .AddScoped<ICityService,CityService>();
+                    .AddScoped<IEntityService<Address>, EntityService<Address>>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
